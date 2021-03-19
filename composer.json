@@ -1,0 +1,17 @@
+{
+	"name": "tanvir/php-array-parse",
+	"type": "library",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "tanvir-r3d",
+			"email": "r3dr0k37@gmail.com"
+		}
+	],
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"Tanvir3d\\": "src/"
+		}
+	}
+}
