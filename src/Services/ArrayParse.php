@@ -166,6 +166,39 @@ class ArrayParse implements ParseContract
     }
 
     /**
+     * Grouping by array based on a column name.
+     *
+     * @param string $column     Column name which will be key to make group.
+     * @param array  $recurArray Array for recursive function.
+     * @return ParseContract
+     */
+    public function groupBy(string $column, array $recurArray = []): ParseContract
+    {
+        $initArray = [];
+        if ($this->count == 0) {
+            $initArray = $this->data;
+        }
+        if ($recurArray && $this->count > 0) {
+            $initArray = $recurArray;
+        }
+
+        $this->count++;
+        foreach ($initArray as $key => $value) {
+            if ($column === $key) {
+                $this->filteredData[$value] = [$initArray];
+            }
+            if (is_array($value)) {
+                $this->groupBy($column, $value);
+            }
+        }
+
+        $this->data = $this->filteredData;
+        $this->count = 0;
+        $this->filteredData = [];
+        return $this;
+    }
+
+    /**
      * Pluck specific column to an array
      *
      * @param string $column     Column name to pluck.
@@ -192,6 +225,8 @@ class ArrayParse implements ParseContract
         }
 
         $this->data = $this->filteredData;
+        $this->count = 0;
+        $this->filteredData = [];
         return (array)$this->data;
     }
 }

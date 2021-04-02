@@ -6,6 +6,7 @@ use Tanvir3d\Services\ArrayParse;
 
 $data = [
     [
+        "condition"  => "New",
         "product_name" => "Hoodie",
         "product_code" => "GS0031",
         "price" => 180.00,
@@ -13,6 +14,7 @@ $data = [
         "status" => 1
     ],
     [
+        "condition"  => "Old",
         "product_name" => "Polo Shirt",
         "product_code" => "GS0F34",
         "price" => 185.00,
@@ -20,6 +22,7 @@ $data = [
         "status" => 0
     ],
     [
+        "condition"  => "New",
         "product_name" => "Jeans",
         "product_code" => "GS0H81",
         "price" => 170.00,
@@ -27,6 +30,7 @@ $data = [
         "status" => 1
     ],
     [
+        "condition"  => "New",
         "product_name" => "Jacket",
         "product_code" => "GS0H45",
         "price" => 165.00,
@@ -34,6 +38,7 @@ $data = [
         "status" => 0
     ],
     [
+        "condition"  => "Old",
         "product_name" => "Punjabi",
         "product_code" => "GS0X23",
         "price" => 155.00,
@@ -46,6 +51,7 @@ $data = [
                 [
                     [
                         [
+                            "condition"  => "Old",
                             "product_name" => "AjarBairam",
                             "product_code" => "GS0X23",
                             "price" => 155.00,
@@ -59,4 +65,4 @@ $data = [
     ]
 ];
 
-print_r(ArrayParse::make($data)->orderBy("product_name", 'desc')->get()->pluck("price"));
+print_r(ArrayParse::make($data)->orderBy("product_name", 'desc')->get()->groupBy("condition")->toArray());
