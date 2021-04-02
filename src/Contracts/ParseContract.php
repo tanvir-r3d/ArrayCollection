@@ -15,20 +15,22 @@ interface ParseContract
     /**
      * filtering data from 2dimension or single dimension array
      *
-     * @param string $column Column name for filtering value.
-     * @param string $value  Value based on column to filter.
+     * @param string $column      Column name for filtering value.
+     * @param string $columnValue Value based on column to filter.
+     * @param array  $recurArray  Array for recursive function.
      * @return ParseContract
      */
-    public function where(string $column, string $value): ParseContract;
+    public function where(string $column, string $columnValue, array $recurArray = []): ParseContract;
 
     /**
      * Filtering on on array.
      *
-     * @param string $column Column name for filtering value.
-     * @param array  $value  Array based on column to filter.
+     * @param string $column      Column name for filtering value.
+     * @param array  $columnValue Array based on column to filter.
+     * @param array  $recurArray  Array for recursive function.
      * @return ParseContract
      */
-    public function whereIn(string $column, array $value): ParseContract;
+    public function whereIn(string $column, array $columnValue, array $recurArray = []): ParseContract;
 
     /**
      * Sort values ascending or descending.
