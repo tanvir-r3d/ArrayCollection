@@ -12,7 +12,8 @@ class ArrayParse implements ParseContract
      * @var array
      */
     protected $data;
-
+    protected $count = 0;
+    protected $filteredData = [];
     /**
      * Init value
      *
@@ -37,51 +38,63 @@ class ArrayParse implements ParseContract
     /**
      * filtering data from 2dimension or single dimension array
      *
-     * @param string $column Column name for filtering value.
-     * @param string $value  Value based on column to filter.
+     * @param string $column      Column name for filtering value.
+     * @param string $columnValue Value based on column to filter.
+     * @param array  $recurArray  Array for recursive function.
      * @return ParseContract
      */
-    public function where(string $column, string $value): ParseContract
+    public function where(string $column, string $columnValue, array $recurArray = []): ParseContract
     {
-        $filterData = [];
-        array_walk($this->data, function ($v, $k) use ($column, $value, &$filterData) {
-            if ($k == $column && $v == $value) {
-                $filterData[] = $this->data;
-            } elseif (is_array($v) && array_key_exists($column, $v)) {
-                array_walk($v, function ($_v, $_k) use ($v, $column, $value, &$filterData) {
-                    if ($_v == $value && $_k == $column) {
-                        $filterData[] = $v;
-                    }
-                });
+        $initArray = [];
+        if ($recurArray && $this->count > 0) {
+            $initArray = $recurArray;
+        }
+        if ($this->count == 0) {
+            $initArray = $this->data;
+        }
+        $this->count++;
+        foreach ($initArray as $key => $value) {
+            if ($key == $column && $value == $columnValue) {
+                $this->filteredData[] = $initArray;
             }
-        });
+            if (is_array($value)) {
+                $this->where($column, $columnValue, $value);
+            }
+        }
 
-        $this->data = $filterData;
+        $this->data = $this->filteredData;
         return $this;
     }
 
     /**
      * Filtering on on array.
      *
-     * @param string $column Column name for filtering value.
-     * @param array  $value  Array based on column to filter.
+     * @param string $column      Column name for filtering value.
+     * @param array  $columnValue Array based on column to filter.
+     * @param array  $recurArray  Array for recursive function.
      * @return ParseContract
      */
-    public function whereIn(string $column, array $value): ParseContract
+    public function whereIn(string $column, array $columnValue, array $recurArray = []): ParseContract
     {
-        $filterData = [];
-        array_walk($this->data, function ($v, $k) use ($column, $value, &$filterData) {
-            if ($k == $column && in_array($v, $value, true)) {
-                $filterData[] = $this->data;
-            } elseif (is_array($v) && array_key_exists($column, $v)) {
-                array_walk($v, function ($_v, $_k) use ($v, $column, $value, &$filterData) {
-                    if (in_array($_v, $value, true) && $_k == $column) {
-                        $filterData[] = $v;
-                    }
-                });
+
+        $initArray = [];
+        if ($recurArray && $this->count > 0) {
+            $initArray = $recurArray;
+        }
+        if ($this->count == 0) {
+            $initArray = $this->data;
+        }
+        $this->count++;
+        foreach ($initArray as $key => $value) {
+            if ($key == $column && in_array($value, $columnValue, true)) {
+                $this->filteredData[] = $initArray;
             }
-        });
-        $this->data = $filterData;
+            if (is_array($value)) {
+                $this->whereIn($column, $columnValue, $value);
+            }
+        }
+
+        $this->data = $this->filteredData;
         return $this;
     }
 
@@ -97,10 +110,12 @@ class ArrayParse implements ParseContract
         $order = strtoupper($order);
 
         usort($this->data, function ($a, $b) use ($column, $order) {
-            if ($order == "ASC") {
-                return $a[$column] <=> $b[$column];
-            } elseif ($order == "DESC" || $order == "DSC") {
-                return $b[$column] <=> $a[$column];
+            if (isset($a[$column]) && isset($b[$column])) {
+                if ($order == "ASC") {
+                    return $a[$column] > $b[$column];
+                } elseif ($order == "DESC" || $order == "DSC") {
+                    return $a[$column] < $b[$column];
+                }
             }
         });
         return $this;
