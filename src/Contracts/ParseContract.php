@@ -70,6 +70,15 @@ interface ParseContract
     public function first(): array;
 
     /**
+     * Grouping by array based on a column name.
+     *
+     * @param string $column     Column name which will be key to make group.
+     * @param array  $recurArray Array for recursive function.
+     * @return ParseContract
+     */
+    public function groupBy(string $column, array $recurArray = []): ParseContract;
+
+    /**
      * Pluck specific column to an array
      *
      * @param string $column     Column name to pluck.
