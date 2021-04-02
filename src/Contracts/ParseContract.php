@@ -68,4 +68,13 @@ interface ParseContract
      * @return array
      */
     public function first(): array;
+
+    /**
+     * Pluck specific column to an array
+     *
+     * @param string $column     Column name to pluck.
+     * @param array  $recurArray Array for recursive function.
+     * @return array
+     */
+    public function pluck(string $column, array $recurArray = []): array;
 }

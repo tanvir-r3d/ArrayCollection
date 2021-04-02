@@ -63,6 +63,8 @@ class ArrayParse implements ParseContract
         }
 
         $this->data = $this->filteredData;
+        $this->count = 0;
+        $this->filteredData = [];
         return $this;
     }
 
@@ -95,6 +97,8 @@ class ArrayParse implements ParseContract
         }
 
         $this->data = $this->filteredData;
+        $this->count = 0;
+        $this->filteredData = [];
         return $this;
     }
 
@@ -159,5 +163,35 @@ class ArrayParse implements ParseContract
     public function first(): array
     {
         return (array)$this->data[0];
+    }
+
+    /**
+     * Pluck specific column to an array
+     *
+     * @param string $column     Column name to pluck.
+     * @param array  $recurArray Array for recursive function.
+     * @return array
+     */
+    public function pluck(string $column, array $recurArray = []): array
+    {
+        $initArray = [];
+        if ($recurArray && $this->count > 0) {
+            $initArray = $recurArray;
+        }
+        if ($this->count == 0) {
+            $initArray = $this->data;
+        }
+        $this->count++;
+        foreach ($initArray as $key => $value) {
+            if ($column === $key) {
+                $this->filteredData[] = $value;
+            }
+            if (is_array($value)) {
+                $this->pluck($column, $value);
+            }
+        }
+
+        $this->data = $this->filteredData;
+        return (array)$this->data;
     }
 }
