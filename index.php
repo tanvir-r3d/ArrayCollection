@@ -59,4 +59,4 @@ $data = [
     ]
 ];
 
-print_r(ArrayParse::make($data)->orderBy("product_name", 'desc')->get()->toArray());
+print_r(ArrayParse::make($data)->orderBy("product_name", 'desc')->get()->pluck("price"));
