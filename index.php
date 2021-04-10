@@ -66,4 +66,4 @@ $data = [
 ];
 
 print_r(ArrayParse::make($data)->orderBy("product_name", 'desc')
-    ->get()->groupBy("status")->toArray());
+    ->get()->sum("product_name"));

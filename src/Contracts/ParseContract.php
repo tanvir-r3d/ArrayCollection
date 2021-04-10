@@ -86,4 +86,13 @@ interface ParseContract
      * @return array
      */
     public function pluck(string $column, array $recurArray = []): array;
+
+    /**
+     * Sum of a columns Value
+     *
+     * @param string $column     Column to do sum.
+     * @param array  $recurArray Array for recursive function.
+     * @return integer
+     */
+    public function sum(string $column, array $recurArray = []);
 }

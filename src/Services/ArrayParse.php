@@ -2,6 +2,7 @@
 
 namespace Tanvir3d\Services;
 
+use Exception;
 use Tanvir3d\Contracts\ParseContract;
 
 class ArrayParse implements ParseContract
@@ -13,6 +14,7 @@ class ArrayParse implements ParseContract
      */
     protected $data;
     protected $filteredData = [];
+    protected $sum = 0;
     /**
      * Init value
      *
@@ -21,21 +23,6 @@ class ArrayParse implements ParseContract
     public function __construct(array $data)
     {
         $this->data = $data;
-    }
-
-    /**
-     * This function just do a recursive call and pass the init values.
-     *
-     * @param string $function Functions name for recursively calling.
-     * @param string $column   Column name to pass for init values.
-     * @param array  $value    Array for initializing doing operation.
-     * @return void
-     */
-    protected function makeYouCursed(string $function, string $column, array $value): void
-    {
-        if (is_array($value)) {
-            $this->$function($column, $value);
-        }
     }
 
     /**
@@ -65,13 +52,14 @@ class ArrayParse implements ParseContract
         } else {
             $initArray = $recurArray;
         }
-        $self = __FUNCTION__;
 
         foreach ($initArray as $key => $value) {
             if ($key == $column && $value == $columnValue) {
                 $this->filteredData[] = $initArray;
             }
-            $this->makeYouCursed($self, $column, $value);
+            if (is_array($value)) {
+                $this->where($column, $columnValue, $value);
+            }
         }
 
         $this->data = $this->filteredData;
@@ -96,13 +84,14 @@ class ArrayParse implements ParseContract
         } else {
             $initArray = $recurArray;
         }
-        $self = __FUNCTION__;
 
         foreach ($initArray as $key => $value) {
             if ($key == $column && in_array($value, $columnValue, true)) {
                 $this->filteredData[] = $initArray;
             }
-            $this->makeYouCursed($self, $column, $value);
+            if (is_array($value)) {
+                $this->whereIn($column, $columnValue, $value);
+            }
         }
 
         $this->data = $this->filteredData;
@@ -188,13 +177,14 @@ class ArrayParse implements ParseContract
         } else {
             $initArray = $recurArray;
         }
-        $self = __FUNCTION__;
 
         foreach ($initArray as $key => $value) {
             if ($key == $column && !is_array($value)) {
                 $this->filteredData[$value][] = $initArray;
             }
-            $this->makeYouCursed($self, $column, $value);
+            if (is_array($value)) {
+                $this->groupBy($column, $value);
+            }
         }
         $this->data = $this->filteredData;
         return $this;
@@ -215,17 +205,51 @@ class ArrayParse implements ParseContract
         } else {
             $initArray = $recurArray;
         }
-        $self = __FUNCTION__;
 
         foreach ($initArray as $key => $value) {
             if ($column === $key) {
                 $this->filteredData[] = $value;
             }
-            $this->makeYouCursed($self, $column, $value);
+            if (is_array($value)) {
+                $this->pluck($column, $value);
+            }
         }
 
         $this->data = $this->filteredData;
         $this->filteredData = [];
         return (array)$this->data;
+    }
+
+    /**
+     * Sum of a columns Value
+     *
+     * @param string $column     Column to do sum.
+     * @param array  $recurArray Array for recursive function.
+     * @throws Exception If column value type non numeric.
+     * @return mixed
+     */
+    public function sum(string $column, array $recurArray = []): mixed
+    {
+        $initArray = [];
+        if (empty($recurArray)) {
+            $initArray = $this->data;
+        } else {
+            $initArray = $recurArray;
+        }
+
+        foreach ($initArray as $key => $value) {
+            if ($column === $key) {
+                if (is_numeric($value)) {
+                    $this->sum += $value;
+                } else {
+                    throw new Exception("Column don't contain numeric value", 1);
+                }
+            }
+            if (is_array($value)) {
+                $this->sum($column, $value);
+            }
+        }
+
+        return $this->sum;
     }
 }
