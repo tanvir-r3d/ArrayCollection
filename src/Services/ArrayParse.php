@@ -12,7 +12,6 @@ class ArrayParse implements ParseContract
      * @var array
      */
     protected $data;
-    protected $count = 0;
     protected $filteredData = [];
     /**
      * Init value
@@ -22,6 +21,21 @@ class ArrayParse implements ParseContract
     public function __construct(array $data)
     {
         $this->data = $data;
+    }
+
+    /**
+     * This function just do a recursive call and pass the init values.
+     *
+     * @param string $function Functions name for recursively calling.
+     * @param string $column   Column name to pass for init values.
+     * @param array  $value    Array for initializing doing operation.
+     * @return void
+     */
+    protected function makeYouCursed(string $function, string $column, array $value): void
+    {
+        if (is_array($value)) {
+            $this->$function($column, $value);
+        }
     }
 
     /**
@@ -46,24 +60,21 @@ class ArrayParse implements ParseContract
     public function where(string $column, string $columnValue, array $recurArray = []): ParseContract
     {
         $initArray = [];
-        if ($recurArray && $this->count > 0) {
+        if (empty($recurArray)) {
+            $initArray = $this->data;
+        } else {
             $initArray = $recurArray;
         }
-        if ($this->count == 0) {
-            $initArray = $this->data;
-        }
-        $this->count++;
+        $self = __FUNCTION__;
+
         foreach ($initArray as $key => $value) {
             if ($key == $column && $value == $columnValue) {
                 $this->filteredData[] = $initArray;
             }
-            if (is_array($value)) {
-                $this->where($column, $columnValue, $value);
-            }
+            $this->makeYouCursed($self, $column, $value);
         }
 
         $this->data = $this->filteredData;
-        $this->count = 0;
         $this->filteredData = [];
         return $this;
     }
@@ -80,24 +91,21 @@ class ArrayParse implements ParseContract
     {
 
         $initArray = [];
-        if ($recurArray && $this->count > 0) {
+        if (empty($recurArray)) {
+            $initArray = $this->data;
+        } else {
             $initArray = $recurArray;
         }
-        if ($this->count == 0) {
-            $initArray = $this->data;
-        }
-        $this->count++;
+        $self = __FUNCTION__;
+
         foreach ($initArray as $key => $value) {
             if ($key == $column && in_array($value, $columnValue, true)) {
                 $this->filteredData[] = $initArray;
             }
-            if (is_array($value)) {
-                $this->whereIn($column, $columnValue, $value);
-            }
+            $this->makeYouCursed($self, $column, $value);
         }
 
         $this->data = $this->filteredData;
-        $this->count = 0;
         $this->filteredData = [];
         return $this;
     }
@@ -180,14 +188,13 @@ class ArrayParse implements ParseContract
         } else {
             $initArray = $recurArray;
         }
+        $self = __FUNCTION__;
 
         foreach ($initArray as $key => $value) {
             if ($key == $column && !is_array($value)) {
                 $this->filteredData[$value][] = $initArray;
             }
-            if (is_array($value)) {
-                $this->groupBy($column, $value);
-            }
+            $this->makeYouCursed($self, $column, $value);
         }
         $this->data = $this->filteredData;
         return $this;
@@ -203,24 +210,21 @@ class ArrayParse implements ParseContract
     public function pluck(string $column, array $recurArray = []): array
     {
         $initArray = [];
-        if ($recurArray && $this->count > 0) {
+        if (empty($recurArray)) {
+            $initArray = $this->data;
+        } else {
             $initArray = $recurArray;
         }
-        if ($this->count == 0) {
-            $initArray = $this->data;
-        }
-        $this->count++;
+        $self = __FUNCTION__;
+
         foreach ($initArray as $key => $value) {
             if ($column === $key) {
                 $this->filteredData[] = $value;
             }
-            if (is_array($value)) {
-                $this->pluck($column, $value);
-            }
+            $this->makeYouCursed($self, $column, $value);
         }
 
         $this->data = $this->filteredData;
-        $this->count = 0;
         $this->filteredData = [];
         return (array)$this->data;
     }
