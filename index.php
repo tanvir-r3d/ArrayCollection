@@ -65,4 +65,5 @@ $data = [
     ]
 ];
 
-print_r(ArrayParse::make($data)->orderBy("product_name", 'desc')->get()->groupBy("condition")->toArray());
+print_r(ArrayParse::make($data)->orderBy("product_name", 'desc')
+    ->get()->groupBy("status")->toArray());
