@@ -175,26 +175,21 @@ class ArrayParse implements ParseContract
     public function groupBy(string $column, array $recurArray = []): ParseContract
     {
         $initArray = [];
-        if ($this->count == 0) {
+        if (empty($recurArray)) {
             $initArray = $this->data;
-        }
-        if ($recurArray && $this->count > 0) {
+        } else {
             $initArray = $recurArray;
         }
 
-        $this->count++;
         foreach ($initArray as $key => $value) {
-            if ($column === $key) {
-                $this->filteredData[$value] = [$initArray];
+            if ($key == $column && !is_array($value)) {
+                $this->filteredData[$value][] = $initArray;
             }
             if (is_array($value)) {
                 $this->groupBy($column, $value);
             }
         }
-
         $this->data = $this->filteredData;
-        $this->count = 0;
-        $this->filteredData = [];
         return $this;
     }
 
